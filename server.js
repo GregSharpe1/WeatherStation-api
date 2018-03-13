@@ -112,9 +112,9 @@ app.get('/weather/:location/:count?', function(req, res){
 
 // The below is a test, exposing port 3001
 //Browser -> "localhost:3001/{NUMBER_OF_ITEMS}"
-var port = process.env.API_PORT || 3001;
-app.listen(port, function(){
-    console.log('application listen on port:' + port);
-})
+// var port = process.env.API_PORT || 3001;
+// app.listen(port, function(){
+//     console.log('application listen on port:' + port);
+// })
 
-//module.exports = app
+module.exports = app
