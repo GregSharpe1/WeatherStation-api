@@ -34,7 +34,10 @@ var weatherStationList = {
   }
 }
 
-
+// MATH:
+// Readings are taken every 30 minutes, therefore if thhe user requested
+// the previous 24 hours of data. then the API call will be as following:
+// api.com/v1/aberswyth/48 <- 48 is 24 hours worth of readings.
 app.get('/weather/:location/:count?', function(req, res){
     if (!weatherStationList.hasOwnProperty(req.params.location)){
         res.status(404).json({ "status": 404, "message": "Not Found", "error": "Location " + req.params.location + " not found."})
@@ -106,89 +109,6 @@ app.get('/weather/:location/:count?', function(req, res){
         })
     }
 })
-
-// This count variable will be passed into API.
-
-// MATH:
-// Readings are taken every 30 minutes, therefore if thhe user requested
-// the previous 24 hours of data. then the API call will be as following:
-// api.com/v1/aberswyth/48 <- 48 is 24 hours worth of readings.
-// app.get('/weather/aberystwyth/:count?', function(req, res){
-//     var params = 
-//     {
-//         TableName: table,
-//         KeyConditionExpression: "#did = :did",
-//         ExpressionAttributeNames:{
-//             "#did": "Device ID"
-//         },
-//         ExpressionAttributeValues: {
-//             ":did":DeviceID,
-//         },
-//         // If a count value is entered, use that! Else, return 1 items
-//         Limit: req.params.count || RETURN_NUM_ITEMS,
-//         // This allows the returned items to be return newest to oldest
-//         ScanIndexForward: false
-//     };
-
-//     // Query the database instance
-//     // With the above params, creating a function 
-//     // calculating the output and data
-//     dbInstance.query(params, function(err, data){
-//         if (err){
-//             console.error('Unable to read JSON item', JSON.stringify(err, null, 2));
-//         } else {            
-//             console.log("Count: ", req.params.count)
-//             res.json(data.Items)
-//         }
-//     })
-// })
-
-// app.get('/weather/aberystwyth/sensor/:sensor/:count?', function(req, res){
-//     var params = 
-//     {
-//         TableName: table,
-//         KeyConditionExpression: "#did = :did",
-//         ExpressionAttributeNames:{
-//             "#did": "Device ID"
-//         },
-//         ExpressionAttributeValues: {
-//             ":did":DeviceID,
-//         },
-//         // If a count value is entered, use that! Else, return 1 items
-//         Limit: req.params.count || RETURN_NUM_ITEMS,
-//         // This allows the returned items to be return newest to oldest
-//         ScanIndexForward: false
-//     };
-
-//     // Query the database instance
-//     // With the above params, creating a function 
-//     // calculating the output and data
-//     dbInstance.query(params, function(err, data){
-//         if (err){
-//             console.error('Unable to read JSON item', JSON.stringify(err, null, 2));
-//         } else {            
-//             // If count is present, loop through the amount of counts printing the requested sensors value
-//             if (req.params.count){
-//                 // Loop through from 0 to the amount of requests.
-//                 // Create the array to store the sensor value
-//                 console.log("Count {} when looking for {}", req.params.count, req.params.sensor)
-//                 sensor_values = [];
-//                 for (var i = 0; i < req.params.count; i++){
-//                     // Append the requsted sensor value to an array (FOR NOW)
-//                     sensor_values.push(data.Items[i].payload[req.params.sensor])
-//                 }
-//                 console.log("Sensor value array: ", sensor_values)
-//                 // Print the number of requested values in JSON
-//                 res.json(sensor_values)
-//             } else {
-//                 // Some processing of the recieved data to only return the sensor requested.
-//                 res.json(data.Items[0].payload[req.params.sensor])
-//             }
-//         }
-//     })
-// })
-
-
 
 // The below is a test, exposing port 3001
 //Browser -> "localhost:3001/{NUMBER_OF_ITEMS}"
