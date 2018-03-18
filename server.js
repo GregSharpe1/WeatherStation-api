@@ -11,7 +11,8 @@ const app = express()
 // Format the output into standard json
 app.set('json spaces', 2);
 // Use the compression library
-app.use(compression())
+// If large amount of data are to be sent use compression as it will save time and ultimately money.
+//app.use(compression())
 app.use(awsServerlessExpressMiddleware.eventContext())
 
 AWS.config.update({
@@ -33,6 +34,13 @@ var weatherStationList = {
     "full_name": "aberystwyth"
   }
 }
+
+// Allow any site to access the information throught the use of the HEADERS (Have tried setting this in API Gateway with no luck)
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 // MATH:
 // Readings are taken every 30 minutes, therefore if thhe user requested
@@ -110,6 +118,10 @@ app.get('/weather/:location/:count?', function(req, res){
     }
 })
 
+// DEVELOPMENT ENVIRONMENT 
+// UNCOMMMENT THE BELOW
+
+// RUN npm start-dev.
 // The below is a test, exposing port 3001
 //Browser -> "localhost:3001/{NUMBER_OF_ITEMS}"
 // var port = process.env.API_PORT || 3001;
@@ -117,4 +129,5 @@ app.get('/weather/:location/:count?', function(req, res){
 //     console.log('application listen on port:' + port);
 // })
 
+// For DEV comment out the below
 module.exports = app
