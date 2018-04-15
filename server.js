@@ -4,6 +4,7 @@ const AWS = require('aws-sdk')
 const express = require('express')
 const compression = require('compression')
 const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
+const moment = require('moment')
 
 // Inilize the application. 
 const app = express()
@@ -117,6 +118,80 @@ app.get('/weather/:location/:count?', function(req, res){
         })
     }
 })
+
+// timestamp b is optionally, if not set timestampB equals date.today()
+app.get('/weather/history/:location/:timestampA/:timestampB?', function(req, res){
+  if (!weatherStationList.hasOwnProperty(req.params.location)){
+    res.status(404).json({ "status": 404, "message": "Not Found", "error": "Location " + req.params.location + " not found."})
+  } else if (!req.params.timestampA || !(req.params.timestampA instanceof Date)){
+    // Check if timestamp A has been specified
+    res.status(404).json({"status": 404, "message": "Not Found", "error": "TimestampA not set."})
+  } else {
+    // Return that data b
+
+    // set the start_timestamp to timestampA this is required.
+    var start_timestamp = req.params.timestampA
+    // If the 'end_timestamp' is not set set until today.
+    // Multiple the number 
+    var end_timestamp = req.params.timestampB || (moment().unix() * 1000).toString();
+
+    //Build the Query
+
+    console.log("START ", start_timestamp)
+    console.log("END ", end_timestamp)
+
+    // Based upon https://dzone.com/articles/query-dynamodb-items-withnodejs
+    var params = {
+      TableName: weatherStationList[req.params.location].table,
+      KeyConditionExpression: "#did = :did and #timestamp BETWEEN :timestampA AND :timestampB",
+      ExpressionAttributeNames:{
+        "#did": "Device ID",
+        "#timestamp": "timestamp"
+      },
+      ExpressionAttributeValues: {
+        ":did": weatherStationList[req.params.location].device_id,
+        ":timestampA": start_timestamp,
+        ":timestampB": end_timestamp
+      },
+      ScanIndexForward: false
+    }
+    
+    dbInstance.query(params, function(err, data){
+      if (err){
+        res.status(500).json({ "status": 500, "message": "Internal Server Error", "error": err})
+      } else {
+        var res_weather_json = []
+         
+        data.Items.forEach(function(element){
+          var wx = {}
+          wx.timestamp = element.timestamp
+          wx.payload = element.payload
+          res_weather_json.push(wx)
+        })
+      }
+      
+      var res_base_json = {
+        "status": 200,
+        "message": "OK",
+        "data": {
+          "location": weatherStationList[req.params.location].full_name,
+          "device_id": weatherStationList[req.params.location].device_id,
+          "weather_data": res_weather_json
+        }
+      }
+        
+        //We need to process the data in two ways. 
+        //a. format as defined in the json thing
+        //b. if queries are set.
+        //Format the data!
+        res.status(200).json(res_base_json)
+
+  });
+
+}
+
+});
+
 
 // DEVELOPMENT ENVIRONMENT 
 // UNCOMMMENT THE BELOW
