@@ -123,7 +123,7 @@ app.get('/weather/:location/:count?', function(req, res){
 app.get('/weather/history/:location/:timestampA/:timestampB?', function(req, res){
   if (!weatherStationList.hasOwnProperty(req.params.location)){
     res.status(404).json({ "status": 404, "message": "Not Found", "error": "Location " + req.params.location + " not found."})
-  } else if (!req.params.timestampA || !(req.params.timestampA instanceof Date)){
+  } else if (!req.params.timestampA){
     // Check if timestamp A has been specified
     res.status(404).json({"status": 404, "message": "Not Found", "error": "TimestampA not set."})
   } else {
@@ -136,7 +136,6 @@ app.get('/weather/history/:location/:timestampA/:timestampB?', function(req, res
     var end_timestamp = req.params.timestampB || (moment().unix() * 1000).toString();
 
     //Build the Query
-
     console.log("START ", start_timestamp)
     console.log("END ", end_timestamp)
 
@@ -186,9 +185,9 @@ app.get('/weather/history/:location/:timestampA/:timestampB?', function(req, res
         //Format the data!
         res.status(200).json(res_base_json)
 
-  });
+    });
 
-}
+  }
 
 });
 
